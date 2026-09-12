@@ -32,7 +32,7 @@ evaluate_fit <- function(dat, pars, method_name) {
                     MTTF = round(mttf, 4), 
                     B10 = round(b10, 4)))
 }
-#方法代码
+#
 NewU_Fast <- function(dat){
   n <- length(dat)
   dat <- sort(dat) 
@@ -188,53 +188,53 @@ NewHybrid_PBootstrap <- function(dat, B=100){
 
 run_case_study <- function(dat, dataset_name) {
   cat(sprintf("\n=======================================================\n"))
-  cat(sprintf(" 开始分析数据集: %s (样本量 n = %d)\n", dataset_name, length(dat)))
+  cat(sprintf(" start %s (size n = %d)\n", dataset_name, length(dat)))
   cat(sprintf("=======================================================\n"))
   results <- list()
 
-  # 1. 传统方法: BLE (Hall & Wang)
+  # 1. BLE (Hall & Wang)
   res_ble <- tryCatch(BL_HallWang(dat), error=function(e) c(NA, NA, NA))
   results[[1]] <- evaluate_fit(dat, res_ble, "BLE")
   
-  # 2. 传统方法: LSPF
+  # 2. LSPF
   res_lspf <- tryCatch(LSPF_Nagatsuka2013(dat), error=function(e) c(NA, NA, NA))
   results[[2]] <- evaluate_fit(dat, as.numeric(res_lspf), "LSPF")
   
-  # 3. 你的方法: UE (基础)
+  # 3. UE
   res_ue <- tryCatch(NewU_Fast(dat), error=function(e) c(NA, NA, NA))
   results[[3]] <- evaluate_fit(dat, res_ue, "UE")
   
-  # 4. 你的方法: BUE (Bootstrap 修偏)
+  # 4. BUE (Bootstrap)
   res_bue <- tryCatch(New_PBootstrap(dat, B=100), error=function(e) c(NA, NA, NA))
   results[[4]] <- evaluate_fit(dat, res_bue, "BUE")
   
-  # 5. 你的方法: HUE (混合似然)
+  # 5. HUE
   res_hue <- tryCatch(NewHybrid_BL(dat), error=function(e) c(NA, NA, NA))
   results[[5]] <- evaluate_fit(dat, res_hue, "HUE")
   
-  # 6. 你的方法: BHUE (混合 Bootstrap 修偏)
+  # 6. BHUE
   res_bhue <- tryCatch(NewHybrid_PBootstrap(dat, B=100), error=function(e) c(NA, NA, NA))
   results[[6]] <- evaluate_fit(dat, res_bhue, "BHUE")
   
-  # 合并结果
+  # joint
   final_df <- do.call(rbind, results)
   print(final_df)
   return(final_df)
 }
-# 案例分析
+# case
 
-# 案例2: 绝缘流体介电击穿数据 (n=19)
+# case2(n=19)
 data_fluid <- c(0.19, 0.78, 0.96, 1.31, 2.78, 3.16, 4.15, 4.67, 4.85, 6.50, 
                 7.35, 8.01, 8.27, 12.06, 31.75, 32.52, 33.91, 36.71, 72.89)
 
 res_case2 <- run_case_study(data_fluid, "Dielectric Breakdown of Insulating Fluid")
 NewU_Fast(data_fluid)
 
-#案例1：Rockette et al. (1974)
+#case1: Rockette et al. (1974)
 dat_Rockette <- c(3.1, 4.6, 5.6, 6.8)
 res_caseD <- run_case_study(dat_Rockette, "LSPF2:Rockette数据")
 
-#案例3： Coetzee (1996) 设备退化时间 (n=128) -----------------
+#case3: (n=128) -----------------
 
 data_coetzee <- c(0.01,0.01,0.01,0.01,0.01,0.01,0.02,0.02,0.02,0.02,
                   0.03,0.04,0.06,0.08,0.10,0.10,0.12,0.12,0.12,0.13,
